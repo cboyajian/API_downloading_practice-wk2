@@ -1,0 +1,99 @@
+---
+title: "USGS Data Retrieval (API)"
+author: "Clarissa Boyajian"
+date: "10/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(dataRetrieval)
+library(metajam)
+```
+
+## Exercise 1: USGS
+```{r, eval=FALSE}
+# Download the data (include `eval=FALSE` so data isn't downloaded each knit)
+discharge_ventura <- readNWISdv(siteNumber = "11118500",
+                        parameterCd = "00060",
+                        startDate = "2019-10-01",
+                        endDate = "2020-10-05") %>% 
+  clean_names() %>% 
+  rename(discharge = x_00060_00003)
+```
+
+```{r}
+# Create a line plot
+ggplot(data = discharge_ventura, aes(x = date, y = discharge)) +
+  geom_line()
+```
+
+
+#### Exersize 1: Bonus
+```{r, eval=FALSE}
+# Download data for early years
+ventura_measurement_start <- readNWISdv(siteNumber = "11118500",
+                        parameterCd = "00060",
+                        startDate = "1900-01-01",
+                        endDate = "1980-01-01")
+```
+
+```{r}
+# Find the minimum date
+min(ventura_measurement_start$Date)
+```
+
+
+## Exercise 2: DataOne
+```{r, eval=FALSE}
+# Download the data packet (metadata and data files)
+download_d1_data(data_url = "https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3A7fc6f6db-c5ea-426a-a743-1f2edafb43b8", path = ".")
+```
+
+```{r}
+# Read the data
+data_list <- read_d1_files(folder_path = "doi_10.5063_F1CJ8BPH__household_language__csv")
+
+# Get the dataframes
+hh_data <- data_list$data %>% 
+  clean_names()
+
+hh_metadata <- data_list$summary_metadata
+```
+
+```{r}
+hh_data_2009to2015 <- hh_data %>% 
+  filter(year >= 2009,
+         year <= 2015)
+
+percentage <- hh_data_2009to2015 %>% 
+  group_by(year) %>% 
+  summarize(percentage = (sum(speak_only_english) / sum(total)) * 100)
+  
+ggplot(percentage, aes(x = year, y = percentage)) +
+  geom_point() +
+  labs(x = "Year",
+       y = "Percentage")
+```
+
+## Assignment 2.1: dataRetrieval
+```{r, eval=FALSE}
+# Download the data
+discharge_santapaula <- readNWISdv(siteNumber = c("11113500", "11118500"),
+                        parameterCd = "00060",
+                        startDate = "2019-10-01",
+                        endDate = "2020-10-05") %>% 
+  clean_names() %>% 
+  rename(discharge = x_00060_00003) %>% 
+  mutate(site = case_when(site_no == "11113500" ~ "Santa Paula",
+                          site_no == "11118500" ~ "Venture"))
+```
+
+```{r}
+# Create a line plot
+ggplot(data = discharge_santapaula, aes(x = date, y = discharge)) +
+  geom_line()
+```
+**
