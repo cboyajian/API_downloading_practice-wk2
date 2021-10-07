@@ -13,7 +13,7 @@ library(dataRetrieval)
 library(metajam)
 ```
 
-## Exercise 1: USGS
+## In Class Exercise 1: USGS
 ```{r, eval=FALSE}
 # Download the data (include `eval=FALSE` so data isn't downloaded each knit)
 discharge_ventura <- readNWISdv(siteNumber = "11118500",
@@ -31,7 +31,7 @@ ggplot(data = discharge_ventura, aes(x = date, y = discharge)) +
 ```
 
 
-#### Exersize 1: Bonus
+#### In Class Exercise 1: Bonus
 ```{r, eval=FALSE}
 # Download data for early years
 ventura_measurement_start <- readNWISdv(siteNumber = "11118500",
@@ -46,7 +46,7 @@ min(ventura_measurement_start$Date)
 ```
 
 
-## Exercise 2: DataOne
+## In Class Exercise 2: DataOne
 ```{r, eval=FALSE}
 # Download the data packet (metadata and data files)
 download_d1_data(data_url = "https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3A7fc6f6db-c5ea-426a-a743-1f2edafb43b8", path = ".")
@@ -78,10 +78,11 @@ ggplot(percentage, aes(x = year, y = percentage)) +
        y = "Percentage")
 ```
 
+
 ## Assignment 2.1: dataRetrieval
 ```{r, eval=FALSE}
-# Download the data
-discharge_santapaula <- readNWISdv(siteNumber = c("11113500", "11118500"),
+# Attempt to download the data for multiple sites within one `readNWISdv()` function
+discharge_2sites <- readNWISdv(siteNumber = c("11113500", "11118500"),
                         parameterCd = "00060",
                         startDate = "2019-10-01",
                         endDate = "2020-10-05") %>% 
@@ -89,11 +90,30 @@ discharge_santapaula <- readNWISdv(siteNumber = c("11113500", "11118500"),
   rename(discharge = x_00060_00003) %>% 
   mutate(site = case_when(site_no == "11113500" ~ "Santa Paula",
                           site_no == "11118500" ~ "Venture"))
+
+# Downloading data for two different sites 
+#discharge_santapaula <- readNWISdv(siteNumber = "11113500",
+#                        parameterCd = "00060",
+#                        startDate = "2019-10-01",
+#                        endDate = "2020-10-05") %>% 
+#  clean_names() %>% 
+#  rename(discharge = x_00060_00003)
+
+#discharge_ventura <- readNWISdv(siteNumber = "11118500",
+#                        parameterCd = "00060",
+#                        startDate = "2019-10-01",
+#                        endDate = "2020-10-05") %>% 
+#  clean_names() %>% 
+#  rename(discharge = x_00060_00003)
+
 ```
 
+*First I tried using the concatenate function to pull data for two different sites simultaneously. However, this does not appear to be the best way to do this because the data is then difficult to plot separately for each site.*
+
 ```{r}
-# Create a line plot
-ggplot(data = discharge_santapaula, aes(x = date, y = discharge)) +
-  geom_line()
+# Create a line plot of both datasets
+ggplot(data = discharge_2sites) +
+  geom_line(aes(x = year,
+                y = ))
 ```
-**
+
