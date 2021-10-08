@@ -13,10 +13,10 @@ library(dataRetrieval)
 library(metajam)
 ```
 
-## In Class Exercise 1: USGS
-```{r, eval=FALSE}
-# Download the data (include `eval=FALSE` so data isn't downloaded each knit)
-discharge_ventura <- readNWISdv(siteNumber = "11118500",
+# In Class Exercise 1: USGS
+```{r}
+# Download the data
+discharge_ventura1 <- readNWISdv(siteNumber = "11118500",
                         parameterCd = "00060",
                         startDate = "2019-10-01",
                         endDate = "2020-10-05") %>% 
@@ -26,13 +26,13 @@ discharge_ventura <- readNWISdv(siteNumber = "11118500",
 
 ```{r}
 # Create a line plot
-ggplot(data = discharge_ventura, aes(x = date, y = discharge)) +
+ggplot(data = discharge_ventura1, aes(x = date, y = discharge)) +
   geom_line()
 ```
 
 
 #### In Class Exercise 1: Bonus
-```{r, eval=FALSE}
+```{r}
 # Download data for early years
 ventura_measurement_start <- readNWISdv(siteNumber = "11118500",
                         parameterCd = "00060",
@@ -45,8 +45,39 @@ ventura_measurement_start <- readNWISdv(siteNumber = "11118500",
 min(ventura_measurement_start$Date)
 ```
 
+# Assignment 2.1: dataRetrieval
 
-## In Class Exercise 2: DataOne
+#### 2.1.1:
+```{r}
+# Download the data for multiple sites within one `readNWISdv()` function, add column with site name
+discharge_2sites <- readNWISdv(siteNumber = c("11113500", "11118500"),
+                        parameterCd = "00060",
+                        startDate = "2019-10-01",
+                        endDate = "2020-10-05") %>% 
+  clean_names() %>% 
+  rename(discharge = x_00060_00003) %>% 
+  mutate(site = case_when(site_no == "11113500" ~ "Santa Paula",
+                          site_no == "11118500" ~ "Ventura"))
+```
+
+#### 2.1.2:
+I used the `c()` function to pull data for two different sites simultaneously. Then I cleaned up the column titles and used the `mutate()` function to added a column listing the name of each site in addition to the 
+
+#### 2.1.3:
+```{r}
+# Create a line plot of both datasets
+ggplot(data = discharge_2sites, 
+       aes(x = date, 
+           y = discharge, 
+           colour = factor(site))) +
+  geom_line() +
+  scale_color_manual(values = c("Venture" = "black", "Santa Paula" = "red"),
+                     name = "Site") +
+  labs(x = "Date",
+       y = "Discharge (cubic feet per second")
+```
+
+# Assignment 2.2: Finish in class exercise 2 (DataOne)
 ```{r, eval=FALSE}
 # Download the data packet (metadata and data files)
 download_d1_data(data_url = "https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3A7fc6f6db-c5ea-426a-a743-1f2edafb43b8", path = ".")
@@ -79,41 +110,5 @@ ggplot(percentage, aes(x = year, y = percentage)) +
 ```
 
 
-## Assignment 2.1: dataRetrieval
-```{r, eval=FALSE}
-# Attempt to download the data for multiple sites within one `readNWISdv()` function
-discharge_2sites <- readNWISdv(siteNumber = c("11113500", "11118500"),
-                        parameterCd = "00060",
-                        startDate = "2019-10-01",
-                        endDate = "2020-10-05") %>% 
-  clean_names() %>% 
-  rename(discharge = x_00060_00003) %>% 
-  mutate(site = case_when(site_no == "11113500" ~ "Santa Paula",
-                          site_no == "11118500" ~ "Venture"))
 
-# Downloading data for two different sites 
-#discharge_santapaula <- readNWISdv(siteNumber = "11113500",
-#                        parameterCd = "00060",
-#                        startDate = "2019-10-01",
-#                        endDate = "2020-10-05") %>% 
-#  clean_names() %>% 
-#  rename(discharge = x_00060_00003)
-
-#discharge_ventura <- readNWISdv(siteNumber = "11118500",
-#                        parameterCd = "00060",
-#                        startDate = "2019-10-01",
-#                        endDate = "2020-10-05") %>% 
-#  clean_names() %>% 
-#  rename(discharge = x_00060_00003)
-
-```
-
-*First I tried using the concatenate function to pull data for two different sites simultaneously. However, this does not appear to be the best way to do this because the data is then difficult to plot separately for each site.*
-
-```{r}
-# Create a line plot of both datasets
-ggplot(data = discharge_2sites) +
-  geom_line(aes(x = year,
-                y = ))
-```
 
