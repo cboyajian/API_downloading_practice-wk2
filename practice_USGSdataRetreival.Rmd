@@ -50,32 +50,42 @@ min(ventura_measurement_start$Date)
 #### 2.1.1:
 ```{r}
 # Download the data for multiple sites within one `readNWISdv()` function, add column with site name
-discharge_2sites <- readNWISdv(siteNumber = c("11113500", "11118500"),
+discharge_2sites <- readNWISuv(siteNumber = c("11113500", "11118500"),
                         parameterCd = "00060",
-                        startDate = "2019-10-01",
-                        endDate = "2020-10-05") %>% 
+                        startDate = "2021-10-03",
+                        endDate = "2021-10-10",
+                        tz = "PST") %>% 
   clean_names() %>% 
-  rename(discharge = x_00060_00003) %>% 
+  rename(discharge = x_00060_00000) %>% 
   mutate(site = case_when(site_no == "11113500" ~ "Santa Paula",
                           site_no == "11118500" ~ "Ventura"))
 ```
 
 #### 2.1.2:
-I used the `c()` function to pull data for two different sites simultaneously. Then I cleaned up the column titles and used the `mutate()` function to added a column listing the name of each site in addition to the 
+I used the `c()` function to pull data for two different sites simultaneously. Then I cleaned up the column titles and used the `mutate()` function to added a column listing the name of each site in addition to the site number. 
 
 #### 2.1.3:
 ```{r}
+# Filter to only be 2021-10-04:
+discharge_2021.10.04 <- discharge_2sites %>% 
+  filter(date_time >= "2021-10-03 00:00:00",
+         date_time <= "2021-10-06 24:59:59")
+
 # Create a line plot of both datasets
-ggplot(data = discharge_2sites, 
-       aes(x = date, 
+ggplot(data = discharge_2021.10.04, 
+       aes(x = date_time, 
            y = discharge, 
            colour = factor(site))) +
   geom_line() +
-  scale_color_manual(values = c("Venture" = "black", "Santa Paula" = "red"),
+  scale_color_manual(values = c("Venture" = "darkgrey",
+                                "Santa Paula" = "red"),
                      name = "Site") +
   labs(x = "Date",
        y = "Discharge (cubic feet per second")
 ```
+
+It appears as though a stream flow peak for the Santa Paula site occurred in the early morning of October 5th. The Ventura site did not appear to have a stream flow peak in response to the storm that occurred on October 4th. 
+
 
 # Assignment 2.2: Finish in class exercise 2 (DataOne)
 ```{r, eval=FALSE}
